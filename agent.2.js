@@ -3,10 +3,20 @@ const app = new Koa()
 // const cheerio = require('cheerio')
 const superagent = require('superagent')
 const targetHost = 'http://siemensgabor.com/'
-const contents = []
-superagent.get(targetHost).end((err, res) => {
-  if(err) {
-    return console.log(`获取${targetHost}内容失败: ${err}`)
+
+app.use(async ctx => {
+  if(ctx.request.url === '/') {
+    const s = new Promise((resolve, reject) => {
+      superagent
+      .get(targetHost)
+      .then(s=> {
+        resolve(s)
+      })
+      .catch(e=>{
+        resolve('err：' + e)
+      })
+    })
+    ctx.response.body = await s
   }
-  console.log('res: ', res)
 })
+app.listen(9999)

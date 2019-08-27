@@ -3,8 +3,10 @@ const app = new Koa()
 const cheerio = require('cheerio')
 
 const hot = []
+let s = ''
 const getHotNews = res => {
   const $ = cheerio.load(res.text)
+  console.log('s$', res.text)
   $('#newsList ul li a').each((index, element) => {
     const news = {
       title: $(element).text(),
@@ -12,11 +14,13 @@ const getHotNews = res => {
     }
     hot.push(news)
   })
-  return hot
+  s = res.text
+  return res.text
 }
 
 const superagent = require('superagent')
 const targetHost = 'https://www.ifeng.com/'
+// const targetHost = 'http://siemensgabor.com'
 superagent.get(targetHost).end((err, res) => {
   if (err) {
     console.log(`获取${targetHost}内容失败: ${err}`)
