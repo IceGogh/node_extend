@@ -1,6 +1,7 @@
 var crypto = require('crypto');
 
-var data = "156156165152165156156";
+// var data = "4535292@QQ.COM";
+const data = '4535292@qq.com'
 console.log('Original cleartext: ' + data);
 var algorithm = 'aes-128-cbc';
 var clearEncoding = 'utf8';

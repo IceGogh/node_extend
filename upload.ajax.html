@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>upload by Ajax</title>
+  </head>
+  <body>
+    <input type="file" id="avatar" multiple="multiple" />
+    <button type="button" id="submit">ajax上传头像</button>
+    <img src="" id="img" />
+  </body>
+  <script>
+    window.onload = () => {
+      const btn = document.getElementById("submit");
+      const img = document.getElementById("img");
+      const avatar = document.getElementById("avatar");
+      avatar.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = e => {
+          img.src = e.target.result;
+        };
+      };
+      submit.onclick = () => {
+        if(!avatar.files[0]) {
+          alert('选择图片!')
+          return false
+        }
+        const formData = new FormData();
+        formData.append("avatar", avatar.files[0]);
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = () => {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log(xhr.responseText);
+          }
+        };
+        xhr.upload.addEventListener(
+          "progress",
+          e => {
+            if (e.lengthComputable) {
+              console.log("percent: ", (e.loaded / e.total) * 100 + "%");
+            }
+          },
+          false
+        );
+        xhr.open("POST", "./upload");
+        // xhr.setRequestHeader('Sec-Fetch-Mode', 'cors')
+        xhr.send(formData);
+      };
+    }; 
+  </script>
+</html>

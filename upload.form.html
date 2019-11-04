@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>upload by form</title>
+  </head>
+  <body>
+    <form action="/upload" enctype="multipart/form-data" method="post">
+      <input type="file" name="avatar" id="avatar" multiple="multiple" />
+      <input type="submit" value="form上传头像" id="submit" />
+    </form>
+    <img id="img" />
+  </body>
+  <script>
+    window.onload = () => {
+      const avatar = document.getElementById("avatar");
+      const img = document.getElementById("img");
+      avatar.onchange = e => {
+        const file = e.target.files[0];
+        //创建读取文件的对象
+        const reader = new FileReader();
+        //使用该对象读取file文件
+        reader.readAsDataURL(file);
+        //读取文件成功后执行的方法函数
+        reader.onload = function(e) {
+          //读取成功后返回的一个参数e，整个的一个进度事件
+          //选择所要显示图片的img，要赋值给img的src就是e中target下result里面
+          //的base64编码格式的地址
+          img.src = e.target.result;
+        };
+      };
+    };
+  </script>
+</html>
