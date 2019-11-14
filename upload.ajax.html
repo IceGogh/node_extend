@@ -34,9 +34,10 @@
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log(xhr.responseText);
+            console.log(xhr.responseText)
           }
         };
+        // 上传进度
         xhr.upload.addEventListener(
           "progress",
           e => {
@@ -46,8 +47,8 @@
           },
           false
         );
+        // 上传路径这里写成相对路径 避免环境变化
         xhr.open("POST", "./upload");
-        // xhr.setRequestHeader('Sec-Fetch-Mode', 'cors')
         xhr.send(formData);
       };
     }; 

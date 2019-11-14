@@ -7,42 +7,24 @@ http
     if (req.url === "/upload" && req.method === "POST") {
       const form = new formidable.IncomingForm();
       const savePath = pathFn.join(__dirname, "/upload");
-      if (!fs.existsSync(savePath)) {
-        fs.mkdirSync(savePath);
-      }
+      // 检查文件加是否已经存在 这里用同步方法
+      // if (!fs.existsSync(savePath)) {
+      //   fs.mkdirSync(savePath);
+      // }
+      fs.existsSync(savePath) || fs.mkdirSync(savePath)
       form.uploadDir = savePath;
       form.parse(req, (err, fields, files) => {
-        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.writeHead(200, { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" });
+        // 取文件路径 和 文件名字
         const { path, name } = files.avatar;
-        console.log(path, "\n", name);
+        // 重命名
         fs.rename(path, pathFn.join(savePath, "/", name), err => {
           if (err) {
             res.writeHead(200, { "Content-Type": "text/plain" });
             res.end(err);
           }
-          console.log(req)
-          if (req.headers["sec-fetch-mode"]) {
-            console.log("sec-fetch-mode: \n", req.headers["sec-fetch-mode"]);
-            if (req.headers["sec-fetch-mode"] === "navigate") {
-              res.writeHead(302, { Location: "./upload-ok" });
-              res.end();
-            } else if (req.headers["sec-fetch-mode"] === "cors") {
-              res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ code: 200, msg: "上传成功" }));
-            } else {
-              res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(
-                JSON.stringify({
-                  code: 200,
-                  data: req.headers["sec-fetch-mode"],
-                  msg: "上传成功"
-                })
-              );
-            }
-          } else {
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(req.headers));
-          }
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({code: 200, data: '/upload/' + name}));
         });
       });
     } else if (req.url === "/user-ajax") {

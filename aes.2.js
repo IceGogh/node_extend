@@ -16,12 +16,14 @@ var cipher = crypto.createCipheriv(algorithm, key, iv);
 var cipherChunks = [];
 cipherChunks.push(cipher.update(data, clearEncoding, cipherEncoding));
 cipherChunks.push(cipher.final(cipherEncoding));
+console.log('cipherChunks: ', cipherChunks)
 console.log(cipherEncoding + ' ciphertext: ' + cipherChunks.join(''));
 
 var decipher = crypto.createDecipheriv(algorithm, key, iv);
 var plainChunks = [];
 for (var i = 0; i < cipherChunks.length; i++) {
   plainChunks.push(decipher.update(cipherChunks[i], cipherEncoding, clearEncoding));
+  console.log('plainChunks: ', plainChunks)
 
 }
 plainChunks.push(decipher.final(clearEncoding));
