@@ -1,0 +1,11 @@
+const images = require('images')
+const img = images('./img/1.png')
+const bg = images('./img/bg.png')
+
+const imgW = img.width()
+const imgH = img.height()
+const bgW = bg.width()
+const bgH = bg.height()
+images(img)
+    .draw(bg, imgW - bgW, imgH - bgH)
+    .save('./img/1.check.png')

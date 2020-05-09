@@ -1,0 +1,22 @@
+{
+  "name": "@gogh/tools",
+  "version": "1.0.12",
+  "description": "test tools by commander",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "commander"
+  ],
+  "author": "im@tiankele.cn",
+  "bin": {
+    "gogh-server": "./index.js",
+    "gogh-server2": "./index.2.js",
+    "gogh-server3": "./index.3.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^5.0.0"
+  }
+}

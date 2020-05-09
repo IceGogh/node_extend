@@ -16,31 +16,62 @@
       const btn = document.getElementById("submit");
       const img = document.getElementById("img");
       const avatar = document.getElementById("avatar");
-      avatar.onchange = e => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = e => {
-          img.src = e.target.result;
-        };
+      avatar.onchange = (e) => {
+        handleSelectFiles(e.target.files);
       };
-      submit.onclick = () => {
-        if(!avatar.files[0]) {
-          alert('选择图片!')
-          return false
+
+      const handleSelectFiles = (files) => {
+        // 单个文件
+        if (files.length === 1) {
+          const file = files[0];
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = (e) => {
+            img.src = e.target.result;
+          };
+        } else if (files.length > 1) {
+          // 多个文件
+        } else {
+          alert("未选取文件");
         }
+      };
+
+      submit.onclick = () => {
+        if (!avatar.files[0]) {
+          alert("选择图片!");
+          return false;
+        }
+        // 单个文件
+        if (avatar.files.length === 1) {
+          upload(formInit(avatar.files[0], 0))
+        } else if (avatar.files.length > 1) {
+          // 多个文件
+          console.log('avatar.files: ', avatar.files)
+          const formData = new FormData();
+          for(const sub in avatar.files) {
+            formData.append(`files${sub}`, avatar.files[sub]);
+          }
+          upload(formData)
+        }
+      };
+      // FormData
+      const formInit = (file, sub) => {
         const formData = new FormData();
-        formData.append("avatar", avatar.files[0]);
+        formData.append(`files${sub}`, file);
+        return formData;
+      };
+      // 执行上传
+      const upload = (formData) => {
         const xhr = new XMLHttpRequest();
         xhr.onreadystatechange = () => {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log(xhr.responseText)
+            console.log(xhr.responseText);
           }
         };
         // 上传进度
         xhr.upload.addEventListener(
           "progress",
-          e => {
+          (e) => {
             if (e.lengthComputable) {
               console.log("percent: ", (e.loaded / e.total) * 100 + "%");
             }
@@ -51,6 +82,6 @@
         xhr.open("POST", "./upload");
         xhr.send(formData);
       };
-    }; 
+    };
   </script>
 </html>

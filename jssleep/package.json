@@ -1,0 +1,15 @@
+{
+  "name": "@gogh/sleep",
+  "version": "1.0.3",
+  "description": "sleep for js",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "await;",
+    "setTimeout"
+  ],
+  "author": "icegogh",
+  "license": "MIT"
+}

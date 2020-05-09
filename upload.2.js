@@ -1,31 +1,36 @@
 const http = require("http");
 const fs = require("fs");
 const formidable = require("formidable");
-const pathFn = require("path");
+const { resolve } = require("path");
 http
   .createServer((req, res) => {
     if (req.url === "/upload" && req.method === "POST") {
       const form = new formidable.IncomingForm();
-      const savePath = pathFn.join(__dirname, "/upload");
+      const savePath = resolve(__dirname, "/upload");
       // 检查文件加是否已经存在 这里用同步方法
       // if (!fs.existsSync(savePath)) {
       //   fs.mkdirSync(savePath);
       // }
-      fs.existsSync(savePath) || fs.mkdirSync(savePath)
+      fs.existsSync(savePath) || fs.mkdirSync(savePath);
       form.uploadDir = savePath;
       form.parse(req, (err, fields, files) => {
-        res.writeHead(200, { "Content-Type": "text/plain", "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" });
-        // 取文件路径 和 文件名字
-        const { path, name } = files.avatar;
-        // 重命名
-        fs.rename(path, pathFn.join(savePath, "/", name), err => {
-          if (err) {
-            res.writeHead(200, { "Content-Type": "text/plain" });
-            res.end(err);
-          }
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({code: 200, data: '/upload/' + name}));
+        res.writeHead(200, {
+          "Content-Type": "text/plain",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "*",
+          "Access-Control-Allow-Methods": "*",
         });
+        // 取文件路径 和 文件名字
+        const data = {}
+        for (const sub in files) {
+          const { path, name } = files[sub];
+          data[sub] = name
+          // 重命名
+          fs.renameSync(path, resolve(savePath, "/", name));
+        }
+        console.log('data: ', typeof data, data)
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ code: 200, data }));
       });
     } else if (req.url === "/user-ajax") {
       const html = fs.readFileSync("./upload.ajax.html");

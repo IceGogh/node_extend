@@ -6,7 +6,6 @@ const hot = []
 let s = ''
 const getHotNews = res => {
   const $ = cheerio.load(res.text)
-  console.log('s$', res.text)
   $('#newsList ul li a').each((index, element) => {
     const news = {
       title: $(element).text(),
@@ -19,8 +18,7 @@ const getHotNews = res => {
 }
 
 const superagent = require('superagent')
-const targetHost = 'https://www.ifeng.com/'
-// const targetHost = 'http://siemensgabor.com'
+const targetHost = 'https://www.zhihu.com/'
 superagent.get(targetHost).end((err, res) => {
   if (err) {
     console.log(`获取${targetHost}内容失败: ${err}`)

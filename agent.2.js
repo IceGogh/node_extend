@@ -2,7 +2,7 @@ const Koa = require('koa');
 const app = new Koa()
 // const cheerio = require('cheerio')
 const superagent = require('superagent')
-const targetHost = 'http://siemensgabor.com/'
+const targetHost = 'https://www.zhihu.com/'
 
 app.use(async ctx => {
   if(ctx.request.url === '/') {
