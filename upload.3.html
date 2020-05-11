@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>大文件分片上传</title>
+  </head>
+  <body>
+    <input type="file" multiple="multiple" id="uper" />
+    <button id="merge">merge</button>
+  </body>
+  <script>
+    const merge = document.getElementById('merge')
+    merge.onclick = function () {
+      $ajax("post", `http://localhost:7778/merge`);
+    }
+    const $ajax = (method, url, data, headers = {}, requestList) => {
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        Object.keys(headers).forEach((key) => {
+          xhr.setRequestHeader(key, headers[key]);
+        });
+        xhr.send(data);
+        xhr.onload = (e) => {
+          resolve({ data: e.target.response });
+        };
+      });
+    };
+    // 切片大小
+    const chunkSize = 1024 * 1024;
+
+    // 生成切片
+    const createChunk = (file) => {
+      const chunkList = [];
+      let current = 0;
+      while (current < file.size) {
+        chunkList.push({ file: file.slice(current, current + chunkSize) });
+        current += chunkSize;
+      }
+      console.log("chunkList: ", chunkList);
+      return chunkList;
+    };
+
+    // 上传切片
+    const uploadChunk = async (requestList, fileName) => {
+      requestList
+        .map(({ chunk, sub }) => {
+          const formData = new FormData();
+          formData.append("chunk", chunk);
+          formData.append("sub", sub);
+          formData.append("filename", fileName);
+          return { formData };
+        })
+        .map(async ({ formData }, ind) => {
+          $ajax("post", `http://localhost:7778/upload/chunk${ind}`, formData);
+        });
+      await Promise.all(requestList);
+      console.log("requestList: ", requestList);
+    };
+
+    const uper = document.getElementById("uper");
+    uper.onchange = (e) => {
+      const file = e.target.files[0];
+      const fileName = file.name;
+      const chunkList = createChunk(file);
+      const requestList = chunkList.map(({ file }, sub) => {
+        return {
+          chunk: file,
+          sub: '_' + sub
+        };
+      });
+      uploadChunk(requestList, fileName);
+    };
+  </script>
+</html>

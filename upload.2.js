@@ -2,11 +2,14 @@ const http = require("http");
 const fs = require("fs");
 const formidable = require("formidable");
 const { resolve } = require("path");
+const savePath = resolve(__dirname, "./upload");
+console.log('save: ', savePath)
 http
   .createServer((req, res) => {
     if (req.url === "/upload" && req.method === "POST") {
       const form = new formidable.IncomingForm();
-      const savePath = resolve(__dirname, "/upload");
+      const savePath = resolve(__dirname, "./upload");
+      console.log('save: ', savePath)
       // 检查文件加是否已经存在 这里用同步方法
       // if (!fs.existsSync(savePath)) {
       //   fs.mkdirSync(savePath);
@@ -26,10 +29,9 @@ http
           const { path, name } = files[sub];
           data[sub] = name
           // 重命名
-          fs.renameSync(path, resolve(savePath, "/", name));
+          fs.renameSync(path, resolve(savePath, "./", name));
         }
         console.log('data: ', typeof data, data)
-        res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ code: 200, data }));
       });
     } else if (req.url === "/user-ajax") {
