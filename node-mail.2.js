@@ -5,8 +5,8 @@ const sina = {
   secureConnection: true, // 使用 SSL
   port: 465, // SMTP 端口
   auth: {
-    user: "icegogh@sina.com", // 账号
-    pass: "d0f2fbf3085f2cd2" // 密码
+    user: "xxxxxxxx", // 账号
+    pass: "xxxxxxxxxxx" // 密码
   }
 };
 
@@ -14,9 +14,9 @@ const smtpTransport = nodemailer.createTransport(sina);
 
 // 设置邮件内容
 const mailOptions = {
-  from: `icegogh <${sina.auth.user}>`, // 发件地址
-  to: "4535292@qq.com, im@tiankele.cn", // 收件列表
-  subject: "nodemaile送", // 标题
+  from: `<${sina.auth.user}>`, // 发件地址
+  to: "im@tiankele.cn", // 收件列表
+  subject: "from nodemaile", // 标题
   html: "<h2>nodemailer基本使用:</h2><h3>",
   attachments: [
     {

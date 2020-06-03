@@ -20,21 +20,24 @@ const size = 1024 * 1024;
 // // 管道
 // readStream.pipe(writeStream);
 
-const pipeStream = (path, writeStream) =>
-  new Promise((resolve) => {
+const pipeStream = (path, writeStream) => {
+  return new Promise((resolve) => {
     const readStream = fs.createReadStream(path);
     readStream.on("end", () => {
       fs.unlinkSync(path);
+      console.log("unlink path: ", path);
       resolve();
     });
+    console.log("pipe~~");
     readStream.pipe(writeStream);
   });
+};
 
 const mergeFileChunk = async (filePath, size) => {
   const chunkPaths = fs.readdirSync(UPLOAD_DIR);
   //   chunkPaths.sort((a, b) => a.split("-")[1] - b.split("-")[1]);
   await Promise.all(
-    chunkPaths.map((chunkPath, index) =>
+    chunkPaths.map((chunkPath, index) => {
       pipeStream(
         resolve(UPLOAD_DIR, chunkPath),
         // 指定位置创建可写流
@@ -42,11 +45,11 @@ const mergeFileChunk = async (filePath, size) => {
           start: index * size,
           end: (index + 1) * size,
         })
-      )
-    )
+      );
+    })
   );
   fs.rmdirSync(UPLOAD_DIR); // 合并后删除保存切片的目录
 };
 
 // mergeFileChunk(newFile, size);
-module.exports = mergeFileChunk
+module.exports = mergeFileChunk;

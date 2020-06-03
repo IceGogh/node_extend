@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>大文件上传</title>
+    <style>
+      #submit {
+        display: inline-block;
+        width: 100px;
+        height: 40px;
+        line-height: 40px;
+        background: #ffe400;
+        color: #fff;
+        cursor: pointer;
+        text-align: center;
+        border-radius: 4px;
+      }
+      p {
+        margin: 0;
+      }
+      .result p {
+        font-size: 12px;
+        color: green;
+      }
+      .result .fail {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      <input type="file" multiple id="file" />
+      <span id="submit">上传</span>
+    </p>
+    <div class="result"></div>
+  </body>
+  <script>
+    const input = document.getElementById("file");
+    const submit = document.getElementById("submit");
+    const res = document.getElementsByClassName("result")[0];
+
+    // 封装 ajax
+    const $ajax = (method, url, data, headers = {}) => {
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        Object.keys(headers).forEach((key) => {
+          xhr.setRequestHeader(key, headers[key]);
+        });
+        xhr.send(data);
+        xhr.onload = (e) => {
+          resolve(JSON.parse(e.target.response));
+        };
+      });
+    };
+
+    // 切片大小 10M
+    const size = 10 * 1024 * 1024;
+    // 选择文件 切割chunk片数
+    let chunkNum = 0;
+    // 切片状态数组
+    const chunkStatusArr = [];
+    // 文件
+    let file = null;
+
+    // 选择文件
+    input.onchange = (e) => {
+      const fileList = e.target.files;
+      if (fileList.length > 1) {
+        alert("仅支持单个大文件上传!");
+      }
+      file = fileList[0];
+    };
+
+    // 生成切片
+    const createChunk = (file) => {
+      const chunkList = [];
+      let sub = 0;
+      while (sub < file.size) {
+        chunkList.push({ file: file.slice(sub, sub + size) });
+        sub += size;
+      }
+      chunkNum = chunkList.length;
+      return chunkList;
+    };
+
+    // 分片上传
+    const uploadChunk = async (chunkList, filename) => {
+      chunkList
+        .map(({ chunk, sub }) => {
+          const formData = new FormData();
+          formData.append("chunk", chunk);
+          formData.append("sub", sub);
+          formData.append("filename", filename);
+          return formData;
+        })
+        .map(async (formData, sub) => {
+          const res = await $ajax(
+            "post",
+            `http://localhost:7778/upload/chunk${sub}`,
+            formData
+          );
+          // 根据每个切片上传结果 回调
+          uploadCallback(res.code, res.sub);
+        });
+    };
+
+    // 触发上传
+    submit.onclick = async () => {
+      if (!file) {
+        return false;
+      }
+      const chunkList = createChunk(file);
+      const requestList = chunkList.map((obj, sub) => {
+        const chunk = obj.file;
+        return { sub, chunk };
+      });
+      uploadChunk(requestList, file.name);
+    };
+
+    // 合并切片
+    const mergeChunk = () => {
+      console.log("file.name", file.name);
+      $ajax(
+        "post",
+        "http://localhost:7778/merge-chunk",
+        JSON.stringify({
+          filename: file.name,
+          size,
+        })
+      );
+    };
+
+    // 上传结果反馈
+    const uploadCallback = (code, sub) => {
+      res.innerHTML += `
+      <p class="${code === 200 ? "" : "fail"}">
+        [切片${sub}]上传${code === 200 ? "成功" : "失败"}
+      </p>
+      `;
+      chunkStatusArr.push(code);
+      // 监听是否最后一个切片
+      if (chunkStatusArr.length === chunkNum) {
+        // 是否所有切片 200
+        if (chunkStatusArr.every((item) => item === 200)) {
+          // 执行合并切片
+          mergeChunk();
+        }
+      }
+    };
+  </script>
+</html>

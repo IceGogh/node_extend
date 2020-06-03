@@ -32,7 +32,8 @@
     "superagent": "^5.1.0",
     "superagent-prefix": "0.0.2",
     "svg-captcha": "^1.4.0",
-    "timewait": "^1.0.2"
+    "timewait": "^1.0.2",
+    "uuid": "^8.1.0"
   },
   "bin": {
     "@gogh-tool": "./command.3.js"
